@@ -1,0 +1,11 @@
+export enum BUTTON_STYLE {
+  PRIMARY,
+  SECONDARY,
+  MENU_BIG,
+  MENU_SELECTION,
+}
+
+export enum CONTAINER_LAYOUT {
+  START,
+  GAME,
+}
