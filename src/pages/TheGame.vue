@@ -17,7 +17,7 @@ import BaseScoreResultCard from '../components/UI/BaseScoreResultCard.vue';
 const modalStore = useModalStore();
 const configStore = useGameConfigStore();
 
-const { gameData } = storeToRefs(configStore);
+const { gameData, players, gameOptions } = storeToRefs(configStore);
 
 const gameStore = useGameStore();
 
@@ -27,7 +27,6 @@ const {
   selectedCards,
   temporaryMatchedCards,
   timeElapsed,
-  playerRounds,
   currentTurn,
   isSinglePlayer,
   winners,
@@ -43,7 +42,9 @@ const formattedTimeElapsed = computed(() => {
 });
 
 const winnerTitle = computed(() => {
-  if (winners.value.length > 0) {
+  console.log(winners);
+
+  if (winners.value.length > 1) {
     return 'It’s a tie!';
   } else {
     return `Player ${winners.value} Wins!`;
@@ -94,20 +95,27 @@ onUnmounted(() => {
       appear
       mode="out-in"
     >
-      <main class="my-20">
+      <main class="flex items-center justify-center my-20">
         <div
-          class="game-grid"
-          :class="gridSizeClass"
+          :class="{
+            'w-[532px] h-[532px]': gameOptions.gridSize === '4x4',
+            'w-[572px] h-[572px]': gameOptions.gridSize === '6x6',
+          }"
         >
-          <BasePairCard
-            v-for="(item, index) in gameData"
-            :key="index"
-            :value="item"
-            :is-selected="selectedCards.includes(index)"
-            :is-matched="matchedCards.includes(index)"
-            :is-temporary-matched="temporaryMatchedCards.includes(index)"
-            @click="gameStore.selectCard(index)"
-          />
+          <div
+            class="game-grid"
+            :class="gridSizeClass"
+          >
+            <BasePairCard
+              v-for="(item, index) in gameData"
+              :key="index"
+              :value="item"
+              :is-selected="selectedCards.includes(index)"
+              :is-matched="matchedCards.includes(index)"
+              :is-temporary-matched="temporaryMatchedCards.includes(index)"
+              @click="gameStore.selectCard(index)"
+            />
+          </div>
         </div>
       </main>
     </transition>
@@ -119,23 +127,29 @@ onUnmounted(() => {
       <footer class="flex justify-center flex-wrap gap-8">
         <template v-if="isSinglePlayer">
           <BaseFooterCard
+            :id="players[0].id"
+            :success="players[0].success"
             title="Time"
             :value="formattedTimeElapsed"
             :is-current-turn="false"
           />
           <BaseFooterCard
+            :id="players[0].id"
+            :success="players[0].success"
             title="Moves"
             :value="roundCount"
-            :is-current-turn="false"
+            :is-current-turn="true"
           />
         </template>
 
         <template v-else>
           <BaseFooterCard
-            v-for="(rounds, index) in playerRounds"
-            :key="index"
-            :title="'Player ' + (index + 1)"
-            :value="rounds"
+            v-for="(player, index) in players"
+            :key="player.id"
+            :id="player.id"
+            :title="player.name"
+            :value="player.moves"
+            :success="player.success"
             :is-current-turn="index === currentTurn"
           />
         </template>
@@ -187,8 +201,8 @@ onUnmounted(() => {
           <BaseScoreResultCard
             v-for="score in gameScores"
             :title="score.player"
-            :value="score.success"
-            :isWinner="winners.includes(score.playerId)"
+            :value="`${score.success} Pairs`"
+            :isWinner="winners.includes(score.id)"
           />
         </div>
         <div class="flex items-center justify-center gap-5 w-full">
@@ -216,14 +230,13 @@ onUnmounted(() => {
   grid-template-columns: repeat(4, 1fr);
   place-items: center;
   gap: 1rem;
-  padding: 0 17rem;
 }
 
 .grid-6x6 {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   place-items: center;
-  padding: 0 17rem;
+  gap: 1rem;
 }
 
 .slide-down-enter-active,

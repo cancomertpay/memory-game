@@ -7,7 +7,7 @@ import { Confetti } from 'confetti-manager';
 const useGameStore = defineStore('the-game', () => {
   const config = useGameConfigStore();
   const modal = useModalStore();
-  const { gameData, gameOptions } = storeToRefs(config);
+  const { gameData, gameOptions, players } = storeToRefs(config);
 
   const confetti = new Confetti();
 
@@ -17,16 +17,19 @@ const useGameStore = defineStore('the-game', () => {
   const roundCount = ref(0);
   const timeElapsed = ref(0);
   const isGameRestarted = ref(false);
-  const playerRounds = ref<number[]>(
-    Array(Number(gameOptions.value.numberOfPlayers)).fill(0)
-  );
-  const playerSuccesses = ref<number[]>(
-    Array(Number(gameOptions.value.numberOfPlayers)).fill(0)
-  );
   const winners = ref<number[]>([]);
-  const gameScores = ref<
-    { playerId: number; player: string; success: number }[]
-  >([]);
+  const gameScores = ref<{ id: number; player: string; success: number }[]>([]);
+  const comboCount = ref(0);
+  const comboMultiplier = ref(1);
+  const maxComboMultiplier = ref(4);
+
+  const isComboMaxReached = computed(() => {
+    return comboCount.value >= maxComboMultiplier.value;
+  });
+
+  const comboTimeout = computed(() => {
+    return Math.max(1000, 5000 - comboMultiplier.value * 500);
+  });
 
   const currentTurn = computed(() => {
     return roundCount.value % Number(gameOptions.value.numberOfPlayers);
@@ -40,6 +43,21 @@ const useGameStore = defineStore('the-game', () => {
     return matchedCards.value.length === gameData.value.length;
   });
 
+  const increaseComboManually = () => {
+    comboCount.value++;
+    if (comboCount.value >= maxComboMultiplier.value) {
+      players.value[currentTurn.value].success++;
+      resetCombo();
+    } else {
+      comboMultiplier.value = Math.min(
+        comboMultiplier.value + 1,
+        maxComboMultiplier.value
+      );
+      startComboTimer();
+    }
+  };
+
+  let comboTimer: any;
   let timer: any;
 
   const startTimer = () => {
@@ -52,37 +70,19 @@ const useGameStore = defineStore('the-game', () => {
     clearInterval(timer);
   };
 
-  const startNewGame = () => {
-    stopTimer();
-    config.resetGame();
-    selectedCards.value = [];
-    matchedCards.value = [];
-    temporaryMatchedCards.value = [];
-    roundCount.value = 0;
-    timeElapsed.value = 0;
-    playerRounds.value = Array(Number(gameOptions.value.numberOfPlayers)).fill(
-      0
-    );
-    playerSuccesses.value = Array(
-      Number(gameOptions.value.numberOfPlayers)
-    ).fill(0);
+  const resetCombo = () => {
+    comboCount.value = 0;
+    comboMultiplier.value = 1;
   };
 
-  const restartGame = () => {
-    stopTimer();
-    isGameRestarted.value = true;
-    config.prepareGameData();
-    selectedCards.value = [];
-    matchedCards.value = [];
-    temporaryMatchedCards.value = [];
-    roundCount.value = 0;
-    timeElapsed.value = 0;
-    playerRounds.value = Array(Number(gameOptions.value.numberOfPlayers)).fill(
-      0
-    );
-    playerSuccesses.value = Array(
-      Number(gameOptions.value.numberOfPlayers)
-    ).fill(0);
+  const startComboTimer = () => {
+    clearTimeout(comboTimer);
+
+    const timeoutDuration = Math.max(1000, comboTimeout.value);
+
+    comboTimer = setTimeout(() => {
+      resetCombo();
+    }, timeoutDuration);
   };
 
   const selectCard = (index: number) => {
@@ -100,9 +100,21 @@ const useGameStore = defineStore('the-game', () => {
       const isMatch = checkForMatch();
 
       if (!isMatch) {
-        // Sadece doğru tahmin yapılmadığında tur dönsün
-        playerRounds.value[currentTurn.value]++;
+        players.value[currentTurn.value].moves++;
         roundCount.value++;
+        resetCombo();
+      } else {
+        comboCount.value++;
+        if (comboCount.value >= maxComboMultiplier.value) {
+          players.value[currentTurn.value].success++;
+          resetCombo();
+        } else {
+          comboMultiplier.value = Math.min(
+            comboMultiplier.value + 1,
+            maxComboMultiplier.value
+          );
+        }
+        startComboTimer();
       }
     }
 
@@ -129,12 +141,7 @@ const useGameStore = defineStore('the-game', () => {
       ];
       matchedCards.value = [...matchedCards.value, firstIndex, secondIndex];
 
-      const currentSuccess = playerSuccesses.value[currentTurn.value] || 0;
-      playerSuccesses.value = [
-        ...playerSuccesses.value.slice(0, currentTurn.value),
-        currentSuccess + 1,
-        ...playerSuccesses.value.slice(currentTurn.value + 1),
-      ];
+      players.value[currentTurn.value].success++;
 
       setTimeout(() => {
         temporaryMatchedCards.value = [];
@@ -151,12 +158,28 @@ const useGameStore = defineStore('the-game', () => {
     }
   };
 
-  watch(
-    () => gameOptions.value.numberOfPlayers,
-    (newPlayerAmount) => {
-      playerRounds.value = Array(Number(newPlayerAmount)).fill(0);
-    }
-  );
+  const startNewGame = () => {
+    stopTimer();
+    config.resetGame();
+    selectedCards.value = [];
+    matchedCards.value = [];
+    temporaryMatchedCards.value = [];
+    roundCount.value = 0;
+    timeElapsed.value = 0;
+    resetCombo();
+  };
+
+  const restartGame = () => {
+    stopTimer();
+    isGameRestarted.value = true;
+    config.prepareGameData();
+    selectedCards.value = [];
+    matchedCards.value = [];
+    temporaryMatchedCards.value = [];
+    roundCount.value = 0;
+    timeElapsed.value = 0;
+    resetCombo();
+  };
 
   watch(roundCount, (val) => {
     if (val === 1 && isSinglePlayer) {
@@ -180,42 +203,42 @@ const useGameStore = defineStore('the-game', () => {
     matchedCards,
     (newVal, oldVal) => {
       if (newVal.length > oldVal.length) {
-        confetti.pride([], {
-          colors: ['#FDA214', '#152938'],
-          duration: 2000,
-        });
+        if (comboCount.value === 0) {
+          confetti.pride([], {
+            colors: ['#4CAF50', '#8BC34A'],
+            duration: 1000,
+          });
+        } else {
+          confetti.pride([], {
+            colors: ['#FDA214', '#152938'],
+            duration: 1000,
+          });
+        }
       }
-    },
-    { deep: true }
-  );
-
-  watch(
-    playerSuccesses,
-    (newVal) => {
-      newVal.forEach((success, index) => {
-        console.log(`Player ${index + 1}: ${success} successes`);
-      });
     },
     { deep: true }
   );
 
   watch(isGameFinished, (val) => {
     if (val) {
-      const maxSuccess = Math.max(...playerSuccesses.value);
+      const maxSuccess = Math.max(
+        ...players.value.map((player) => player.success)
+      );
 
-      winners.value = playerSuccesses.value
-        .map((success, index) => (success === maxSuccess ? index + 1 : null))
-        .filter((player) => player !== null) as number[];
+      winners.value = players.value
+        .filter((player) => player.success === maxSuccess)
+        .map((player) => player.id);
 
-      gameScores.value = playerSuccesses.value
-        .map((success, index) => ({
-          playerId: index + 1,
-          player: `${index + 1} Pairs`,
-          success: success,
+      gameScores.value = players.value
+        .map((player) => ({
+          id: player.id,
+          player: player.name,
+          success: player.success,
         }))
         .sort((a, b) => b.success - a.success);
     }
   });
+
   return {
     selectedCards,
     matchedCards,
@@ -223,13 +246,17 @@ const useGameStore = defineStore('the-game', () => {
     timeElapsed,
     roundCount,
     isGameRestarted,
-    playerRounds,
     currentTurn,
     isSinglePlayer,
-    playerSuccesses,
     isGameFinished,
     gameScores,
     winners,
+    comboCount,
+    comboMultiplier,
+    maxComboMultiplier,
+    comboTimeout,
+    isComboMaxReached,
+    increaseComboManually,
     selectCard,
     stopTimer,
     startNewGame,

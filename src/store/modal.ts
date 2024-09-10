@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 const useModalStore = defineStore('modal', () => {
-  const isModalOpen = ref(true);
+  const isModalOpen = ref(false);
 
   const openModal = () => {
     isModalOpen.value = true;

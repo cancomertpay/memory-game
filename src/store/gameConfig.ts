@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { Ref, ref, watch } from 'vue';
 import { DEFAULT_GAME_OPTIONS, GAME_SEED } from '../constants';
 import { shuffleArray } from '../utils/helpers';
+import { IPlayers } from '../models/interfaces';
 
 const useGameConfigStore = defineStore('game-config', () => {
   const gameOptions: Ref<typeof DEFAULT_GAME_OPTIONS> = ref({
@@ -9,6 +10,7 @@ const useGameConfigStore = defineStore('game-config', () => {
   });
   const isGameStarted = ref(false);
   const gameData: Ref<string[]> = ref([]);
+  const players: Ref<IPlayers[]> = ref([]);
 
   const setGameOptions = (
     options: Partial<typeof DEFAULT_GAME_OPTIONS>
@@ -21,7 +23,6 @@ const useGameConfigStore = defineStore('game-config', () => {
   };
 
   const resetGame = (): void => {
-    gameOptions.value = { ...DEFAULT_GAME_OPTIONS };
     isGameStarted.value = false;
   };
 
@@ -31,23 +32,38 @@ const useGameConfigStore = defineStore('game-config', () => {
 
     const gameSeed = theme === 'numbers' ? GAME_SEED.numbers : GAME_SEED.icons;
 
+    const numberOfPlayers = Number(gameOptions.value.numberOfPlayers);
+    players.value = Array.from({ length: numberOfPlayers }, (_, index) => ({
+      id: index + 1,
+      name: `Player ${index + 1}`,
+      moves: 0,
+      success: 0,
+    }));
+
     const limitedGameData = gameSeed.slice(0, gridSize / 2);
     gameData.value = shuffleArray([...limitedGameData, ...limitedGameData]);
   };
 
-  watch(isGameStarted, () => {
-    console.log(
-      'game options:',
-      gameOptions.value,
-      'game data:',
-      gameData.value
-    );
-  });
+  watch(
+    players,
+    () => {
+      console.table(
+        players.value.map((player) => ({
+          PlayerID: player.id,
+          PlayerName: player.name,
+          Rounds: player.moves,
+          Successes: player.success,
+        }))
+      );
+    },
+    { deep: true }
+  );
 
   return {
     gameOptions,
     isGameStarted,
     gameData,
+    players,
     setGameOptions,
     startGame,
     resetGame,

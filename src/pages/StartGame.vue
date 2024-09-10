@@ -80,20 +80,26 @@ onMounted(() => {
             title="Select Theme"
             :options="['Numbers', 'Icons']"
             store-key="gameTheme"
-            :default="DEFAULT_GAME_OPTIONS.gameTheme"
+            :default="store.gameOptions.gameTheme"
+            @change="store.setGameOptions({ gameTheme: $event })"
           />
+
           <GameOptions
             title="Number of Players"
             :options="['1', '2', '3', '4']"
             store-key="numberOfPlayers"
-            :default="DEFAULT_GAME_OPTIONS.numberOfPlayers"
+            :default="store.gameOptions.numberOfPlayers"
+            @change="store.setGameOptions({ numberOfPlayers: $event })"
           />
+
           <GameOptions
             title="Grid Size"
             :options="['4x4', '6x6']"
             store-key="gridSize"
-            :default="DEFAULT_GAME_OPTIONS.gridSize"
+            :default="store.gameOptions.gridSize"
+            @change="store.setGameOptions({ gridSize: $event })"
           />
+
           <BaseButton
             :button-style="BUTTON_STYLE.MENU_BIG"
             @click="handleStartGame"

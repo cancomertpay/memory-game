@@ -9,8 +9,8 @@ const { isModalOpen } = storeToRefs(modalStore);
 
 const confetti = new Confetti();
 
-watch(isModalOpen, () => {
-  if (isModalOpen.value) {
+watch(isModalOpen, (val) => {
+  if (val) {
     document.body.style.overflow = 'hidden';
     confetti.fall([], {
       scalar: 1.5,

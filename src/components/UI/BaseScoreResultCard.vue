@@ -41,7 +41,7 @@ const cardDefault = computed(() => {
       class="title"
       :class="cardTitle"
     >
-      {{ props.title }}
+      {{ props.title }} {{ props.isWinner ? '(Winner!)' : '' }}
     </span>
     <span
       class="default"

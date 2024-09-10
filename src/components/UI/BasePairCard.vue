@@ -42,7 +42,7 @@ const cardBaseClass = computed(() =>
 
 <style scoped>
 .card {
-  @apply flex items-center justify-center text-white-smoke rounded-full cursor-pointer transition-all duration-300 ease-in;
+  @apply flex items-center justify-center text-white-smoke rounded-full cursor-pointer transition-all duration-200 ease-in;
 }
 
 .restarted-card {
@@ -66,6 +66,6 @@ const cardBaseClass = computed(() =>
 }
 
 .x6 {
-  @apply w-[118px] h-[118px] text-gameNumber6x6;
+  @apply w-[82px] h-[82px] text-gameNumber6x6;
 }
 </style>
