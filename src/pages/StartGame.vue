@@ -5,7 +5,6 @@ import Card from '../components/UI/BaseCard.vue';
 import Container from '../components/UI/BaseContainer.vue';
 import GameOptions from '../components/UI/GameOptions.vue';
 import { BUTTON_STYLE, CONTAINER_LAYOUT } from '../models/enums';
-import { DEFAULT_GAME_OPTIONS } from '../constants';
 import { ref, onMounted } from 'vue';
 import useGameConfigStore from '../store/gameConfig';
 import { storeToRefs } from 'pinia';
