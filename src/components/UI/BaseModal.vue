@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia';
 import useModalStore from '../../store/modal';
 import { watch } from 'vue';
-import { Confetti } from 'confetti-manager';
+import { Confetti } from 'fast-confetti';
 
 const modalStore = useModalStore();
 const { isModalOpen } = storeToRefs(modalStore);
@@ -11,13 +11,10 @@ const confetti = new Confetti();
 
 watch(isModalOpen, (val) => {
   if (val) {
+    confetti.fireworks();
     document.body.style.overflow = 'hidden';
-    confetti.fall([], {
-      scalar: 1.5,
-      gravity: 2,
-      shapes: ['circle', 'square'],
-    });
   } else {
+    confetti.reset('instant');
     document.body.style.overflow = '';
   }
 });

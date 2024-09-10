@@ -38,6 +38,7 @@ const useGameConfigStore = defineStore('game-config', () => {
       name: `Player ${index + 1}`,
       moves: 0,
       success: 0,
+      bonus: 0,
     }));
 
     const limitedGameData = gameSeed.slice(0, gridSize / 2);
@@ -53,6 +54,7 @@ const useGameConfigStore = defineStore('game-config', () => {
           PlayerName: player.name,
           Rounds: player.moves,
           Successes: player.success,
+          Bonus: player.bonus,
         }))
       );
     },

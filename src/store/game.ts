@@ -2,7 +2,7 @@ import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import useGameConfigStore from './gameConfig';
 import useModalStore from './modal';
-import { Confetti } from 'confetti-manager';
+import { Confetti } from 'fast-confetti';
 
 const useGameStore = defineStore('the-game', () => {
   const config = useGameConfigStore();
@@ -18,7 +18,6 @@ const useGameStore = defineStore('the-game', () => {
   const timeElapsed = ref(0);
   const isGameRestarted = ref(false);
   const winners = ref<number[]>([]);
-  const gameScores = ref<{ id: number; player: string; success: number }[]>([]);
   const comboCount = ref(0);
   const comboMultiplier = ref(1);
   const maxComboMultiplier = ref(4);
@@ -46,7 +45,9 @@ const useGameStore = defineStore('the-game', () => {
   const increaseComboManually = () => {
     comboCount.value++;
     if (comboCount.value >= maxComboMultiplier.value) {
-      players.value[currentTurn.value].success++;
+      players.value[currentTurn.value].bonus
+        ? players.value[currentTurn.value].bonus!++
+        : (players.value[currentTurn.value].bonus = +1);
       resetCombo();
     } else {
       comboMultiplier.value = Math.min(
@@ -106,7 +107,7 @@ const useGameStore = defineStore('the-game', () => {
       } else {
         comboCount.value++;
         if (comboCount.value >= maxComboMultiplier.value) {
-          players.value[currentTurn.value].success++;
+          players.value[currentTurn.value].bonus!++;
           resetCombo();
         } else {
           comboMultiplier.value = Math.min(
@@ -204,14 +205,14 @@ const useGameStore = defineStore('the-game', () => {
     (newVal, oldVal) => {
       if (newVal.length > oldVal.length) {
         if (comboCount.value === 0) {
-          confetti.pride([], {
+          confetti.pride({
             colors: ['#4CAF50', '#8BC34A'],
-            duration: 1000,
+            duration: 500,
           });
         } else {
-          confetti.pride([], {
+          confetti.pride({
             colors: ['#FDA214', '#152938'],
-            duration: 1000,
+            duration: 500,
           });
         }
       }
@@ -221,6 +222,16 @@ const useGameStore = defineStore('the-game', () => {
 
   watch(isGameFinished, (val) => {
     if (val) {
+      players.value.forEach((player) => {
+        player.success += player.bonus!;
+      });
+
+      players.value.sort((a, b) => {
+        const totalA = a.success + a.bonus!;
+        const totalB = b.success + b.bonus!;
+        return totalB - totalA;
+      });
+
       const maxSuccess = Math.max(
         ...players.value.map((player) => player.success)
       );
@@ -228,14 +239,6 @@ const useGameStore = defineStore('the-game', () => {
       winners.value = players.value
         .filter((player) => player.success === maxSuccess)
         .map((player) => player.id);
-
-      gameScores.value = players.value
-        .map((player) => ({
-          id: player.id,
-          player: player.name,
-          success: player.success,
-        }))
-        .sort((a, b) => b.success - a.success);
     }
   });
 
@@ -249,7 +252,6 @@ const useGameStore = defineStore('the-game', () => {
     currentTurn,
     isSinglePlayer,
     isGameFinished,
-    gameScores,
     winners,
     comboCount,
     comboMultiplier,

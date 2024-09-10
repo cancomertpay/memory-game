@@ -3,4 +3,5 @@ export interface IPlayers {
   name: string;
   moves: number;
   success: number;
+  bonus?: number;
 }

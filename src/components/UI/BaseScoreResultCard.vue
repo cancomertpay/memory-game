@@ -5,6 +5,7 @@ const props = defineProps<{
   title: string;
   value: string | number;
   isWinner?: boolean;
+  bonus?: number;
 }>();
 
 const cardBg = computed(() => {
@@ -43,11 +44,19 @@ const cardDefault = computed(() => {
     >
       {{ props.title }} {{ props.isWinner ? '(Winner!)' : '' }}
     </span>
-    <span
-      class="default"
-      :class="cardDefault"
-      >{{ props.value }}</span
-    >
+    <div class="flex items-center justify-center gap-2">
+      <span
+        v-show="props.bonus! > 0 && props.title.toLocaleLowerCase() !== 'moves taken' && props.title.toLocaleLowerCase() !== 'time elapsed'"
+        class="text-sm"
+        :class="cardDefault"
+        >(+{{ props.bonus }})</span
+      >
+      <span
+        class="default"
+        :class="cardDefault"
+        >{{ props.value }}</span
+      >
+    </div>
   </div>
 </template>
 

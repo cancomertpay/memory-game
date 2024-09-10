@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "confetti-manager": "^1.0.2",
+    "fast-confetti": "^1.0.1",
     "pinia": "^2.2.2",
     "vue": "^3.4.37"
   },

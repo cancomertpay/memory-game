@@ -30,7 +30,6 @@ const {
   currentTurn,
   isSinglePlayer,
   winners,
-  gameScores,
 } = storeToRefs(gameStore);
 
 const gridSizeClass = computed(() => {
@@ -42,8 +41,6 @@ const formattedTimeElapsed = computed(() => {
 });
 
 const winnerTitle = computed(() => {
-  console.log(winners);
-
   if (winners.value.length > 1) {
     return 'It’s a tie!';
   } else {
@@ -148,7 +145,7 @@ onUnmounted(() => {
             :key="player.id"
             :id="player.id"
             :title="player.name"
-            :value="player.moves"
+            :value="player.success"
             :success="player.success"
             :is-current-turn="index === currentTurn"
           />
@@ -199,10 +196,11 @@ onUnmounted(() => {
         </div>
         <div class="flex flex-col items-center justify-center gap-5 w-full">
           <BaseScoreResultCard
-            v-for="score in gameScores"
-            :title="score.player"
-            :value="`${score.success} Pairs`"
-            :isWinner="winners.includes(score.id)"
+            v-for="player in players"
+            :title="player.name"
+            :value="`${player.success} Pairs`"
+            :isWinner="winners.includes(player.id)"
+            :bonus="player.bonus"
           />
         </div>
         <div class="flex items-center justify-center gap-5 w-full">
