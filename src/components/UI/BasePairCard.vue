@@ -62,10 +62,10 @@ const cardBaseClass = computed(() =>
 }
 
 .x4 {
-  @apply w-[118px] h-[118px] text-gameNumber4x4;
+  @apply size-[72.53px] md:size-[118px] text-gameNumber4x4;
 }
 
 .x6 {
-  @apply w-[82px] h-[82px] text-gameNumber6x6;
+  @apply size-[46.88px] md:size-[82px] text-gameNumber6x6;
 }
 </style>

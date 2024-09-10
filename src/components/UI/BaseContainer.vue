@@ -30,6 +30,6 @@ const containerLayout = computed(() => {
 }
 
 .game-layout {
-  @apply relative flex flex-col justify-between min-h-screen w-full py-20 px-40 bg-white-smoke;
+  @apply relative flex flex-col justify-between min-h-screen w-full px-5 py-10 md:p-10 lg:py-10 xl:py-20 lg:px-40 bg-white-smoke;
 }
 </style>

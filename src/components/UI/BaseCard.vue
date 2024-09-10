@@ -8,6 +8,6 @@
 
 <style scoped>
 .card-base {
-  @apply flex flex-col gap-8 p-14 min-w-[654px] min-h-[559px] bg-white-smoke rounded-2xl;
+  @apply flex flex-col gap-8 p-14 lg:min-w-[654px] lg:min-h-[559px] bg-white-smoke rounded-2xl;
 }
 </style>

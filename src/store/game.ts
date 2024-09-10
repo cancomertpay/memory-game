@@ -168,6 +168,7 @@ const useGameStore = defineStore('the-game', () => {
     roundCount.value = 0;
     timeElapsed.value = 0;
     resetCombo();
+    confetti.reset('instant');
   };
 
   const restartGame = () => {
@@ -180,6 +181,7 @@ const useGameStore = defineStore('the-game', () => {
     roundCount.value = 0;
     timeElapsed.value = 0;
     resetCombo();
+    confetti.reset('instant');
   };
 
   watch(roundCount, (val) => {
@@ -222,6 +224,10 @@ const useGameStore = defineStore('the-game', () => {
 
   watch(isGameFinished, (val) => {
     if (val) {
+      confetti.fireworks({
+        duration: 5000,
+      });
+
       players.value.forEach((player) => {
         player.success += player.bonus!;
       });

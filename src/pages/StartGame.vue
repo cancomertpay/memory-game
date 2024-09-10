@@ -73,7 +73,7 @@ onMounted(() => {
       @before-leave="disableScroll"
       @after-leave="enableScroll"
     >
-      <div v-if="!isGameStarted && !closing">
+      <div v-if="!isGameStarted && !closing" class="md:w-full md:px-10 lg:w-auto">
         <Card>
           <GameOptions
             title="Select Theme"
