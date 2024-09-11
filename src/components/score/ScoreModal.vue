@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import BaseModal from '../UI/BaseModal.vue';
 import { formatTime } from '../../utils/helpers';
 import { storeToRefs } from 'pinia';
@@ -7,15 +7,12 @@ import useGameStore from '../../store/game';
 import useGameConfigStore from '../../store/gameConfig';
 import useModalStore from '../../store/modal';
 import { BUTTON_STYLE } from '../../models/enums';
-import { Confetti } from 'fast-confetti';
 import BaseScoreResultCard from '../UI/BaseScoreResultCard.vue';
 import BaseButton from '../UI/BaseButton.vue';
-
 
 const modalStore = useModalStore();
 const configStore = useGameConfigStore();
 const gameStore = useGameStore();
-
 
 const { players } = storeToRefs(configStore);
 
@@ -43,7 +40,6 @@ const handleNewGameClick = () => {
   modalStore.closeModal();
   gameStore.startNewGame();
 };
-
 </script>
 
 <template>
