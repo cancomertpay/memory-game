@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import StartGame from './pages/StartGame.vue';
-import TheGame from './pages/TheGame.vue';
+import StartGame from './views/StartGame.vue';
+import TheGame from './views/TheGame.vue';
 import useGameStore from './store/gameConfig';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
 const store = useGameStore();
 const { isGameStarted } = storeToRefs(store);
-const bgColor = ref('#152938'); // StartGame'in arka plan rengi
+const bgColor = ref('#152938'); 
 
-// Oyun başladığında arka plan rengini değiştirmek için izleme
 watch(isGameStarted, (newValue) => {
   if (newValue) {
-    bgColor.value = '#FCFCFC'; // TheGame'in arka plan rengi
+    bgColor.value = '#FCFCFC';
   } else {
-    bgColor.value = '#152938'; // StartGame'in arka plan rengi
+    bgColor.value = '#152938'; 
   }
 });
 </script>
@@ -38,7 +37,7 @@ watch(isGameStarted, (newValue) => {
 
 <style scoped>
 .app-container {
-  transition: background-color 1s ease-in-out; /* Smooth background transition */
+  transition: background-color 1s ease-in-out; 
   min-height: 100vh;
 }
 

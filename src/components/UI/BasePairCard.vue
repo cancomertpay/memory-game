@@ -36,7 +36,10 @@ const cardBaseClass = computed(() =>
 
 <template>
   <div :class="[cardBaseClass, cardClass, cardInner]">
-    {{ props.value }}
+    <template v-if="gameOptions.gameTheme === 'numbers'">{{
+      props.value
+    }}</template>
+    <i v-else :class="[value]" />
   </div>
 </template>
 

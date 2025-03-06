@@ -11,6 +11,7 @@
   "dependencies": {
     "fast-confetti": "^1.0.1",
     "pinia": "^2.2.2",
+    "remixicon": "^4.6.0",
     "vue": "^3.4.37"
   },
   "devDependencies": {

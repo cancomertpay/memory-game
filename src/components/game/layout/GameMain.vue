@@ -19,16 +19,9 @@ const gridSizeClass = computed(() => {
 </script>
 
 <template>
-  <transition
-    name="slide-left"
-    appear
-    mode="out-in"
-  >
+  <transition name="slide-left" appear mode="out-in">
     <main class="flex items-center justify-center my-20">
-      <div
-        class="game-grid"
-        :class="gridSizeClass"
-      >
+      <div class="game-grid" :class="gridSizeClass">
         <BasePairCard
           v-for="(item, index) in gameData"
           :key="index"
